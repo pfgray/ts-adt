@@ -1,0 +1,16 @@
+{
+  "name": "ts-adt",
+  "version": "1.0.1",
+  "author": "Paul Gray <pfbgray@gmail.com>",
+  "description": "An Algebraic Data Type generator for Typescript",
+  "main": "lib/ADT.js",
+  "types": "lib/ADT.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "prepublish": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "3.7"
+  }
+}
