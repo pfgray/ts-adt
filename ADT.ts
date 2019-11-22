@@ -23,7 +23,7 @@
  type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
  
  /**
-  * Helper type for ommiting the '_type' field from values
+  * Helper type for omitting the '_type' field from values
   */
  export type ADTMember<ADT, Type extends string> = Omit<
    Extract<ADT, { _type: Type }>,
