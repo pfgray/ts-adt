@@ -52,12 +52,12 @@ export function match<ADT extends { _type: string }, Z>(
 }
 
 /**
- * Item-first version of, useful for better inference in some circumstances
+ * Item-first version of match, useful for better inference in some circumstances
  *
  * ```ts
  * declare const foo: Option<string>
  *
- * matchC(foo)({
+ * matchI(foo)({
  *   none: () => 'none',
  *   some: ({value}) => 'some'
  * })
