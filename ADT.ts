@@ -57,13 +57,13 @@ export function match<ADT extends { _type: string }, Z>(
  * ```ts
  * declare const foo: Option<string>
  *
- * matchI(foo)({
+ * matchItem(foo)({
  *   none: () => 'none',
  *   some: ({value}) => 'some'
  * })
  * ```
  */
-export function matchI<ADT extends { _type: string }>(
+export function matchItem<ADT extends { _type: string }>(
   v: ADT
 ): <Z>(matchObj: { [K in ADT["_type"]]: (v: ADTMember<ADT, K>) => Z }) => Z {
   return (matchObj) => (matchObj as any)[v._type](v);
