@@ -41,7 +41,7 @@ import { ADT, match, matchI } from 'ts-adt'
 
 declare const userImage: Option<string>
 
-const img = matchI(userImage)({
+const img = matchItem(userImage)({
   some: ({value}) => value,
   none: () => "http://example.com/defaultImage"
 })
