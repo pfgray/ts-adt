@@ -16,11 +16,19 @@
  * ```
  */
 export type ADT<T extends Record<string, {}>> = {
-  [K in keyof T]: { _type: K } & T[K];
+  [K in keyof T]: K extends "_" ? never : { _type: K } & T[K];
 }[keyof T];
 
 // Omit type, for TS < 3.5
 type Omit<T, K> = Pick<T, Exclude<keyof T, K>>;
+
+type MatchObj<ADT extends { _type: string }, Z> = {
+  [K in ADT["_type"]]: (v: ADTMember<ADT, K>) => Z;
+};
+
+type PartialMatchObj<ADT extends { _type: string }, Z> = Partial<
+  MatchObj<ADT, Z>
+> & { _: () => Z };
 
 /**
  * Helper type for omitting the '_type' field from values
@@ -46,9 +54,12 @@ export type ADTMember<ADT, Type extends string> = Omit<
  * ```
  */
 export function match<ADT extends { _type: string }, Z>(
-  matchObj: { [K in ADT["_type"]]: (v: ADTMember<ADT, K>) => Z }
+  matchObj: MatchObj<ADT, Z> | PartialMatchObj<ADT, Z>
 ): (v: ADT) => Z {
-  return (v) => (matchObj as any)[v._type](v);
+  return (v) =>
+    (matchObj as any)[v._type] != null
+      ? (matchObj as any)[v._type](v)
+      : (matchObj as any)["_"]();
 }
 
 /**
@@ -65,6 +76,9 @@ export function match<ADT extends { _type: string }, Z>(
  */
 export function matchI<ADT extends { _type: string }>(
   v: ADT
-): <Z>(matchObj: { [K in ADT["_type"]]: (v: ADTMember<ADT, K>) => Z }) => Z {
-  return (matchObj) => (matchObj as any)[v._type](v);
+): <Z>(matchObj: MatchObj<ADT, Z> | PartialMatchObj<ADT, Z>) => Z {
+  return (matchObj) =>
+    (matchObj as any)[v._type] != null
+      ? (matchObj as any)[v._type](v)
+      : (matchObj as any)["_"]();
 }
