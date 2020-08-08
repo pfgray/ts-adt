@@ -8,7 +8,8 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "prepublish": "tsc"
+    "prepublish": "tsc",
+    "test": "tsc adt.test.ts"
   },
   "devDependencies": {
     "typescript": "3.9"
