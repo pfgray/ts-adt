@@ -11,6 +11,6 @@
     "prepublish": "tsc"
   },
   "devDependencies": {
-    "typescript": "3.7"
+    "typescript": "3.9"
   }
 }
