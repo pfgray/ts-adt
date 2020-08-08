@@ -57,6 +57,24 @@ const img = pipe(
 
 Both functions work the same way, but their arguments are ordered differently for better inference in different cases.
 
+You can also use an underscore if you don't need to match against all possible cases:
+
+```ts
+type PrettyPlease<A> = ADT<{
+  idle: {};
+  workingOnIt: {};
+  success: { value: A };
+  failure: { error: Error };
+}>;
+
+declare const promise: PrettyPlease<string>;
+
+matchI(promise)({
+  success: (_) => _.value,
+  _: () => "Wait or come back later.",
+});
+```
+
 
 
 
