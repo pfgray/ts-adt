@@ -51,6 +51,30 @@ export type ADTMember<ADT, Type extends string> = Omit<
  * ```
  */
 export function match<ADT extends { _type: string }, Z>(
+  matchObj: MatchObj<ADT, Z>
+): (v: ADT) => Z {
+  return (v) =>
+    (matchObj as any)[v._type] != null
+      ? (matchObj as any)[v._type](v)
+      : (matchObj as any)["_"](v);
+}
+
+/**
+ * Partial pattern matching for a sum type defined with ADT
+ *
+ * ```ts
+ * declare const foo: Option<string>
+ *
+ * pipe(
+ *   foo,
+ *   match({
+ *     some: ({value}) => 'some'
+ *     _: (_option) => 'none',
+ *   })
+ * )
+ * ```
+ */
+export function matchP<ADT extends { _type: string }, Z>(
   matchObj: MatchObj<ADT, Z> | PartialMatchObj<ADT, Z>
 ): (v: ADT) => Z {
   return (v) =>
@@ -77,7 +101,19 @@ export function matchI<ADT extends { _type: string }>(
   return (matchObj) => (matchObj as any)[v._type](v);
 }
 
-export function matchP<ADT extends { _type: string }>(
+/**
+ * Item-first version of matchP, useful for better inference in some circumstances
+ *
+ * ```ts
+ * declare const foo: Option<string>
+ *
+ * matchP(foo)({
+ *   some: ({value}) => 'some'
+ *   _: (_option) => 'none',
+ * })
+ * ```
+ */
+export function matchPI<ADT extends { _type: string }>(
   v: ADT
 ): <Z>(matchObj: MatchObj<ADT, Z> | PartialMatchObj<ADT, Z>) => Z {
   return (matchObj) =>

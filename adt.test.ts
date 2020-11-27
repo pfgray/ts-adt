@@ -1,4 +1,4 @@
-import { ADT, matchI, matchP, match } from "./ADT";
+import { ADT, matchI, matchPI, match, matchP } from "./ADT";
 
 type UnderScoreAsTagAttempt<A> = ADT<{
   good: { value: A };
@@ -21,7 +21,9 @@ type PrettyPlease<A> = ADT<{
 
 declare const promise: PrettyPlease<"Chocolate">;
 
-// Testing match
+/**
+ * match
+ */
 match<typeof promise, string>({
   idle: (_) => "I'm lazy",
   workingOnIt: (_) => "Soon!",
@@ -35,13 +37,26 @@ match<typeof promise, string>({
   success: (_) => _.value,
 })(promise);
 
+// match should not allow partial matching
 match<typeof promise, string>({
+  success: (_) => _.value,
+  // @ts-expect-error
+  _: () => "Wait or come back later.",
+})(promise);
+
+/**
+ * matchP
+ */
+
+// matchP allows partial matching
+matchP<typeof promise, string>({
   success: (_) => _.value,
   _: () => "Wait or come back later.",
 })(promise);
 
-// Testing matchI
-
+/**
+ * matchI
+ */
 matchI(promise)({
   idle: (_) => "I'm lazy",
   workingOnIt: (_) => "Soon!",
@@ -81,21 +96,24 @@ matchI(promise)({
   _: (value) => "Wait or come back later.",
 });
 
-matchP(promise)({
+/**
+ * matchPI
+ */
+matchPI(promise)({
   success: (_) => _.value,
   _: (value) => "Wait or come back later.",
 });
 
-// matchP can't match against unknown cases
-matchP(promise)({
+// matchPI can't match against unknown cases
+matchPI(promise)({
   success: (_) => _.value,
   // @ts-expect-error
   stale: (_) => "Old news",
   _: (value) => "Wait or come back later.",
 });
 
-// matchP should allow matching against all cases
-matchP(promise)({
+// matchPI should allow matching against all cases
+matchPI(promise)({
   idle: () => "Start baking!",
   workingOnIt: (_) => "... Tempering",
   success: (_) => _.value,
