@@ -12,6 +12,6 @@
     "test": "tsc adt.test.ts"
   },
   "devDependencies": {
-    "typescript": "3.9"
+    "typescript": "^4.1.2"
   }
 }
