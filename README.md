@@ -17,17 +17,17 @@ type Option<A> = ADT<{
 
 This translates to:
 ```ts
-type Option<A> = { _type: 'some', value: A} | { _type: 'none' }
+type Option<A> = { _tag: 'some', value: A} | { _tag: 'none' }
 ```
 
-Here, `Option<A>` represents a value that can be one of two types; either it's an object with a `_type` attribute `"some"` _and_ a value `A`, or it's an object with `_type` attribute `"none"`. This type is quite useful, especially when used with Typescript's type narrowing feature:
+Here, `Option<A>` represents a value that can be one of two types; either it's an object with a `_tag` attribute `"some"` _and_ a value `A`, or it's an object with `_tag` attribute `"none"`. This type is quite useful, especially when used with Typescript's type narrowing feature:
 
 ```ts
 declare const userImage: Option<string>
 
 function getUserImage(): string {
-  if(userImage._type === 'some') {
-    return userImage.value // value is accessible here, since _type is 'some'
+  if(userImage._tag === 'some') {
+    return userImage.value // value is accessible here, since _tag is 'some'
   } else {
     return "http://example.com/defaultImage" 
   }

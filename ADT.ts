@@ -16,18 +16,18 @@
  * ```
  */
 export type ADT<T extends Record<string, {}>> = {
-  [K in keyof T]: { _type: K } & T[K];
+  [K in keyof T]: { _tag: K } & T[K];
 }[keyof T];
 
 // Omit type, for TS < 3.5
 type Omit<T, K> = Pick<T, Exclude<keyof T, K>>;
 
 /**
- * Helper type for omitting the '_type' field from values
+ * Helper type for omitting the '_tag' field from values
  */
 export type ADTMember<ADT, Type extends string> = Omit<
-  Extract<ADT, { _type: Type }>,
-  "_type"
+  Extract<ADT, { _tag: Type }>,
+  "_tag"
 >;
 
 /**
@@ -45,10 +45,10 @@ export type ADTMember<ADT, Type extends string> = Omit<
  * )
  * ```
  */
-export function match<ADT extends { _type: string }, Z>(
-  matchObj: { [K in ADT["_type"]]: (v: ADTMember<ADT, K>) => Z }
+export function match<ADT extends { _tag: string }, Z>(
+  matchObj: { [K in ADT["_tag"]]: (v: ADTMember<ADT, K>) => Z }
 ): (v: ADT) => Z {
-  return (v) => (matchObj as any)[v._type](v);
+  return (v) => (matchObj as any)[v._tag](v);
 }
 
 /**
@@ -63,8 +63,8 @@ export function match<ADT extends { _type: string }, Z>(
  * })
  * ```
  */
-export function matchI<ADT extends { _type: string }>(
+export function matchI<ADT extends { _tag: string }>(
   v: ADT
-): <Z>(matchObj: { [K in ADT["_type"]]: (v: ADTMember<ADT, K>) => Z }) => Z {
-  return (matchObj) => (matchObj as any)[v._type](v);
+): <Z>(matchObj: { [K in ADT["_tag"]]: (v: ADTMember<ADT, K>) => Z }) => Z {
+  return (matchObj) => (matchObj as any)[v._tag](v);
 }
