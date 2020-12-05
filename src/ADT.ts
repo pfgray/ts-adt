@@ -16,16 +16,31 @@
  * ```
  */
 export type ADT<T extends Record<string, {}>> = {
-  [K in keyof T]: K extends "_" ? never : { _type: K } & T[K];
+  [K in keyof T]: { _type: K } & T[K];
+}[keyof T];
+
+export type MakeADT<D extends string, T extends Record<string, {}>> = {
+  [K in keyof T]: Record<D, K> & T[K];
 }[keyof T];
 
 type MatchObj<ADT extends { _type: string }, Z> = {
   [K in ADT["_type"]]: (v: ADTMember<ADT, K>) => Z;
 };
 
-type PartialMatchObj<ADT extends { _type: string }, Z> = Partial<
-  MatchObj<ADT, Z>
-> & { _: (v: ADT) => Z };
+/**
+ * Omit helper for TS < 3.5
+ */
+type Omit<T, K> = Pick<T, Exclude<keyof T, K>>;
+
+/**
+ * Unions all the return types of matcher functions
+ */
+type Returns<
+  ADT extends { _type: string },
+  M extends MatchObj<ADT, unknown>
+> = {
+  [K in keyof M]: ReturnType<M[K]>;
+}[keyof M];
 
 /**
  * Helper type for omitting the '_type' field from values
@@ -50,13 +65,11 @@ export type ADTMember<ADT, Type extends string> = Omit<
  * )
  * ```
  */
-export function match<ADT extends { _type: string }, Z>(
-  matchObj: MatchObj<ADT, Z>
-): (v: ADT) => Z {
-  return (v) =>
-    (matchObj as any)[v._type] != null
-      ? (matchObj as any)[v._type](v)
-      : (matchObj as any)["_"](v);
+export function match<
+  ADT extends { _type: string },
+  M extends MatchObj<ADT, unknown>
+>(matchObj: M): (v: ADT) => Returns<ADT, M> {
+  return (v) => (matchObj as any)[v._type](v);
 }
 
 /**
@@ -67,21 +80,39 @@ export function match<ADT extends { _type: string }, Z>(
  *
  * pipe(
  *   foo,
- *   match({
+ *   matchP({
  *     some: ({value}) => 'some'
- *     _: (_option) => 'none',
- *   })
+ *   }, (_option) => 'none')
  * )
  * ```
  */
-export function matchP<ADT extends { _type: string }, Z>(
-  matchObj: MatchObj<ADT, Z> | PartialMatchObj<ADT, Z>
-): (v: ADT) => Z {
+export function matchP<
+  ADT extends { _type: string },
+  M extends Partial<MatchObj<ADT, unknown>>,
+  F extends (rest: Exclude<ADT, { _type: keyof M }>) => unknown
+>(
+  matchObj: M,
+  otherwise: F
+): (v: ADT) => PartialReturns<ADT, M> | ReturnType<F> {
   return (v) =>
     (matchObj as any)[v._type] != null
       ? (matchObj as any)[v._type](v)
-      : (matchObj as any)["_"](v);
+      : (otherwise as any)(v);
 }
+
+type UndefineableReturn<
+  T extends undefined | ((...args: any) => any)
+> = T extends (...args: any) => any ? ReturnType<T> : never;
+
+/**
+ * Unions all the return types of matcher functions
+ */
+type PartialReturns<
+  ADT extends { _type: string },
+  M extends MatchObj<ADT, unknown> | Partial<MatchObj<ADT, unknown>>
+> = {
+  [K in keyof M]: UndefineableReturn<M[K]>;
+}[keyof M];
 
 /**
  * Item-first version of match, useful for better inference in some circumstances
@@ -97,7 +128,7 @@ export function matchP<ADT extends { _type: string }, Z>(
  */
 export function matchI<ADT extends { _type: string }>(
   v: ADT
-): <Z>(matchObj: MatchObj<ADT, Z>) => Z {
+): <M extends MatchObj<ADT, unknown>>(matchObj: M) => Returns<ADT, M> {
   return (matchObj) => (matchObj as any)[v._type](v);
 }
 
@@ -107,17 +138,22 @@ export function matchI<ADT extends { _type: string }>(
  * ```ts
  * declare const foo: Option<string>
  *
- * matchP(foo)({
+ * matchPI(foo)({
  *   some: ({value}) => 'some'
- *   _: (_option) => 'none',
- * })
+ * }, (_option) => 'none')
  * ```
  */
 export function matchPI<ADT extends { _type: string }>(
   v: ADT
-): <Z>(matchObj: MatchObj<ADT, Z> | PartialMatchObj<ADT, Z>) => Z {
-  return (matchObj) =>
+): <
+  M extends MatchObj<ADT, unknown> | Partial<MatchObj<ADT, unknown>>,
+  F extends (rest: Exclude<ADT, { _type: keyof M }>) => unknown
+>(
+  matchObj: M,
+  otherwise: F
+) => PartialReturns<ADT, M> | ReturnType<F> {
+  return (matchObj, otherwise) =>
     (matchObj as any)[v._type] != null
       ? (matchObj as any)[v._type](v)
-      : (matchObj as any)["_"](v);
+      : (otherwise as any)(v);
 }

@@ -9,9 +9,21 @@
   "scripts": {
     "build": "tsc",
     "prepublish": "tsc",
-    "test": "tsc adt.test.ts"
+    "test": "ava"
   },
   "devDependencies": {
-    "typescript": "^4.1.2"
+    "ava": "^3.13.0",
+    "fp-ts": "^2.9.0",
+    "ts-node": "^9.1.0",
+    "tsd": "^0.14.0",
+    "typescript": "3.9"
+  },
+  "ava": {
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
   }
 }
