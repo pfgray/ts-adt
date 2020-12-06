@@ -40,6 +40,10 @@ export type MakeADT<D extends string, T extends Record<string, {}>> = {
   [K in keyof T]: Record<D, K> & T[K];
 }[keyof T];
 
+type MakeMatchObj<D extends string, ADT extends Record<D, string>, Z> = {
+  [K in ADT[D]]: (v: ADTMember<ADT, K>) => Z;
+};
+
 type MatchObj<ADT extends { _type: string }, Z> = {
   [K in ADT["_type"]]: (v: ADTMember<ADT, K>) => Z;
 };
@@ -59,13 +63,18 @@ type Returns<
   [K in keyof M]: ReturnType<M[K]>;
 }[keyof M];
 
+type MakeReturns<
+  D extends string,
+  ADT extends Record<D, string>,
+  M extends MakeMatchObj<D, ADT, unknown>
+> = {
+  [K in keyof M]: ReturnType<M[K]>;
+}[keyof M];
+
 /**
- * Helper type for omitting the '_type' field from values
+ * Helper type for extracting a member from an ADT
  */
-export type ADTMember<ADT, Type extends string> = Omit<
-  Extract<ADT, { _type: Type }>,
-  "_type"
->;
+export type ADTMember<ADT, Type extends string> = Extract<ADT, { _type: Type }>;
 
 /**
  * Pattern matching for a sum type defined with ADT
@@ -87,6 +96,14 @@ export function match<
   M extends MatchObj<ADT, unknown>
 >(matchObj: M): (v: ADT) => Returns<ADT, M> {
   return (v) => (matchObj as any)[v._type](v);
+}
+
+export function makeMatch<D extends string>(
+  d: D
+): <ADT extends Record<D, string>, M extends MakeMatchObj<D, ADT, unknown>>(
+  matchObj: M
+) => (v: ADT) => MakeReturns<D, ADT, M> {
+  return (matchObj) => (v) => matchObj[v[d]](v as any) as any;
 }
 
 /**
@@ -117,6 +134,20 @@ export function matchP<
       : (otherwise as any)(v);
 }
 
+export function makeMatchP<D extends string>(
+  d: D
+): <
+  ADT extends Record<D, string>,
+  M extends Partial<MakeMatchObj<D, ADT, unknown>>,
+  F extends (rest: Exclude<ADT, Record<D, keyof M>>) => unknown
+>(
+  matchObj: M,
+  otherwise: F
+) => (v: ADT) => MakePartialReturns<D, ADT, M> | ReturnType<F> {
+  return (matchObj, otherwise) => (v) =>
+    matchObj[v[d]] != null ? (matchObj[v[d]] as any)(v) : (otherwise as any)(v);
+}
+
 type UndefineableReturn<
   T extends undefined | ((...args: any) => any)
 > = T extends (...args: any) => any ? ReturnType<T> : never;
@@ -131,8 +162,18 @@ type PartialReturns<
   [K in keyof M]: UndefineableReturn<M[K]>;
 }[keyof M];
 
+type MakePartialReturns<
+  D extends string,
+  ADT extends Record<D, string>,
+  M extends
+    | MakeMatchObj<D, ADT, unknown>
+    | Partial<MakeMatchObj<D, ADT, unknown>>
+> = {
+  [K in keyof M]: UndefineableReturn<M[K]>;
+}[keyof M];
+
 /**
- * Item-first version of match, useful for better inference in some circumstances
+ * Inverted version of match, useful for better inference in some circumstances
  *
  * ```ts
  * declare const foo: Option<string>
@@ -149,8 +190,18 @@ export function matchI<ADT extends { _type: string }>(
   return (matchObj) => (matchObj as any)[v._type](v);
 }
 
+export function makeMatchI<D extends string>(
+  d: D
+): <ADT extends Record<D, string>>(
+  v: ADT
+) => <M extends MakeMatchObj<D, ADT, unknown>>(
+  matchObj: M
+) => MakeReturns<D, ADT, M> {
+  return (v) => (matchObj) => matchObj[v[d]](v as any) as any;
+}
+
 /**
- * Item-first version of matchP, useful for better inference in some circumstances
+ * Inverted version of matchP, useful for better inference in some circumstances
  *
  * ```ts
  * declare const foo: Option<string>
@@ -172,5 +223,24 @@ export function matchPI<ADT extends { _type: string }>(
   return (matchObj, otherwise) =>
     (matchObj as any)[v._type] != null
       ? (matchObj as any)[v._type](v)
+      : (otherwise as any)(v);
+}
+
+export function makeMatchPI<D extends string>(
+  d: D
+): <ADT extends Record<D, string>>(
+  v: ADT
+) => <
+  M extends
+    | MakeMatchObj<D, ADT, unknown>
+    | Partial<MakeMatchObj<D, ADT, unknown>>,
+  F extends (rest: Exclude<ADT, { _type: keyof M }>) => unknown
+>(
+  matchObj: M,
+  otherwise: F
+) => MakePartialReturns<D, ADT, M> | ReturnType<F> {
+  return (v) => (matchObj, otherwise) =>
+    matchObj[v[d]] != null
+      ? ((matchObj[v[d]] as any)(v) as any)
       : (otherwise as any)(v);
 }
