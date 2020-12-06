@@ -15,10 +15,27 @@
  * }>
  * ```
  */
-export type ADT<T extends Record<string, {}>> = {
-  [K in keyof T]: { _type: K } & T[K];
-}[keyof T];
+export type ADT<T extends Record<string, {}>> = MakeADT<"_type", T>;
 
+/**
+ * A sum-type generator. Uses the keys of the passed type as string discriminators
+ *
+ * @template {string} D - The discriminant field
+ * @template {Record<string, {}>} T - The ADT shorthand description
+ *
+ * ```ts
+ * type Option<T> = MakeADT<"_tag", {
+ *   none: {},
+ *   some: {value: T}
+ * }>
+ *
+ * type These<A, B> = MakeADT<"type", {
+ *   left: {left: A},
+ *   right: {right: B},
+ *   both: {left: A, right: B}
+ * }>
+ * ```
+ */
 export type MakeADT<D extends string, T extends Record<string, {}>> = {
   [K in keyof T]: Record<D, K> & T[K];
 }[keyof T];
