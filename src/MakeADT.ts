@@ -21,6 +21,10 @@ export type MakeADT<D extends string, T extends Record<string, {}>> = {
   [K in keyof T]: Record<D, K> & T[K];
 }[keyof T];
 
+/**
+ * Describes the match object, where the keys are the discriminant ids, and the values
+ * are the functions which handle the value
+ */
 type MakeMatchObj<D extends string, ADT extends Record<D, string>, Z> = {
   [K in ADT[D]]: (v: MakeADTMember<D, ADT, K>) => Z;
 };
@@ -164,5 +168,25 @@ export function makeMatchPI<D extends string>(
       : (otherwise as any)(v);
 }
 
+/**
+ * Generate match functions that switch on a specified discriminant field
+ *
+ * @example
+ * ```ts
+ * import * as O from "fp-ts/Option";
+ *
+ * const [match, matchP, matchI, matchPI] = makeMatchers("_tag");
+ *
+ * pipe(
+ *   O.fromNullable("value"),
+ *   match({
+ *     None: () => 0,
+ *     Some: (v) => v.value,
+ *   })
+ * );
+ * ```
+ *
+ * @param d the discriminant field to use
+ */
 export const makeMatchers = <D extends string>(d: D) =>
   [makeMatch(d), makeMatchP(d), makeMatchI(d), makeMatchPI(d)] as const;
