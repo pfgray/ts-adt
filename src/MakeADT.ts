@@ -171,7 +171,6 @@ export function makeMatchPI<D extends string>(
 /**
  * Generate match functions that switch on a specified discriminant field
  *
- * @example
  * ```ts
  * import * as O from "fp-ts/Option";
  *

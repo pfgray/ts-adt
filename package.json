@@ -1,6 +1,6 @@
 {
   "name": "ts-adt",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "author": "Paul Gray <pfbgray@gmail.com>",
   "description": "An Algebraic Data Type generator for Typescript",
   "main": "ADT.js",
@@ -9,7 +9,9 @@
   "scripts": {
     "build": "tsc && ts-node ./scripts/build",
     "prepublish": "tsc",
-    "test": "ava"
+    "test": "ava",
+    "prerelease": "yarn build",
+    "release": "ts-node scripts/release"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
