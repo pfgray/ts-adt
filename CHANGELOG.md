@@ -1,3 +1,9 @@
+## v2.0.2
+
+### Bugfix:
+
+    - Inlining source maps
+
 ## v2.0.0
 
 ### Features:
