@@ -82,7 +82,7 @@ You can supply an "otherwise" function which gets invoked if the value doesn't m
 declare const myXor: Xor<number>;
 
 matchPI(promise)({ nothing: () => 0 }, (rest) => {
-  // rest inferred as {_type: 'left', value: number } | { 'right', value: number }
+  // rest inferred as {_type: 'left', value: number } | {_type: 'right', value: number }
   return rest.value;
 });
 ```
