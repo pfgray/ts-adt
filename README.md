@@ -2,7 +2,7 @@
 
 ### Enables succinct ADT declaration.
 
-In typescript, [Algebraic Data Types](https://www.typescriptlang.org/docs/handbook/advanced-types.html#discriminated-unions) are encoded using union types with a discriminator field.
+In typescript, [Algebraic Data Types](https://www.typescriptlang.org/docs/handbook/unions-and-intersections.html#discriminating-unions) are encoded using union types with a discriminator field.
 
 Example:
 
