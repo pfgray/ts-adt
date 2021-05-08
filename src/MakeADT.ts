@@ -157,7 +157,7 @@ export function makeMatchPI<D extends string>(
   M extends
     | MakeMatchObj<D, ADT, unknown>
     | Partial<MakeMatchObj<D, ADT, unknown>>,
-  F extends (rest: Exclude<ADT, { _type: keyof M }>) => unknown
+  F extends (rest: Exclude<ADT, {[K in D]: keyof M}>) => unknown
 >(
   matchObj: M,
   otherwise: F
