@@ -1,4 +1,4 @@
-import { MakeADT, makeMatchers } from "./MakeADT";
+import { MakeADT, makeMatchers, makeRefinement } from "./MakeADT";
 
 /**
  * A sum-type generator. Uses the keys of the passed type as string discriminators
@@ -78,3 +78,20 @@ export const [
    */
   matchPI,
 ] = makeMatchers("_type");
+
+/**
+ * Generate a tag refinement function with discriminant field "_type"
+ *
+ * ```ts
+ * declare const foo: These<number, string>
+ * 
+ * // error if the tags are misspelled
+ * if(refinement(['left', 'both'])(foo)) {
+ *   console.log(foo.left)
+ * }
+ * ```
+ *
+ * @param tags the tags to refine on
+ * @param v the ADT to refine
+ */
+export const refinement = makeRefinement("_type")

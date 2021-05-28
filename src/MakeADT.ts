@@ -189,3 +189,35 @@ export function makeMatchPI<D extends string>(
  */
 export const makeMatchers = <D extends string>(d: D) =>
   [makeMatch(d), makeMatchP(d), makeMatchI(d), makeMatchPI(d)] as const;
+
+/**
+ * Generate a tag refinement function on a specified discriminant field
+ *
+ * ```ts
+ * import * as T from "fp-ts/These";
+ * 
+ * const refinement = makeRefinement("_tag");
+ *
+ * declare const foo: T.These<number, string>
+ * 
+ * // error if the tags are misspelled
+ * if(refinement(['Left', 'Both'])(foo)) {
+ *   console.log(foo.left)
+ * }
+ * ```
+ *
+ * @param d the discriminant field to use
+ * @param tags the tags to refine on
+ * @param v the ADT to refine
+ */
+export const makeRefinement = <D extends string>(
+  d: D
+) => <Type extends string>(
+  tags: readonly Type[]
+) => <ADT extends { [t in D]: string }>(
+  v: [Type] extends [ADT[D]] ? ADT : never
+): v is MakeADTMember<
+    D,
+    [Type] extends [ADT[D]] ? ADT : never, 
+    Type
+  > => tags.indexOf(v[d] as string as Type) > -1

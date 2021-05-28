@@ -1,4 +1,4 @@
-import { ADT, matchI, matchPI, match, matchP } from "../src/ADT";
+import { ADT, matchI, matchPI, match, matchP, refinement } from "../src/ADT";
 import test from "ava";
 
 type PrettyPlease<A> = ADT<{
@@ -83,4 +83,13 @@ test("matchPI", (t) => {
     matchPI(failure("error"))(matchers, () => "fallthrough"),
     "fallthrough"
   );
+});
+
+test("refinement", (t) => {
+  const isComplete = refinement(['success', 'failure']);
+
+  t.is(isComplete(idle()), false);
+  t.is(isComplete(workingOnIt()), false);
+  t.is(isComplete(success("foo")), true);
+  t.is(isComplete(failure("error")), true);
 });
