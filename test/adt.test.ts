@@ -86,7 +86,7 @@ test("matchPI", (t) => {
 });
 
 test("refinement", (t) => {
-  const isComplete = refinement(['success', 'failure']);
+  const isComplete = refinement('success', 'failure');
 
   t.is(isComplete(idle()), false);
   t.is(isComplete(workingOnIt()), false);

@@ -213,7 +213,7 @@ export const makeMatchers = <D extends string>(d: D) =>
 export const makeRefinement = <D extends string>(
   d: D
 ) => <Type extends string>(
-  tags: readonly Type[]
+  ...tags: readonly Type[]
 ) => <ADT extends { [t in D]: string }>(
   v: [Type] extends [ADT[D]] ? ADT : never
 ): v is MakeADTMember<

@@ -83,7 +83,7 @@ test("inference [matchPI]", (t) => {
 });
 
 test("inference [refinement]", (t) => {
-  const hasThat = refinement(['that', 'both']);
+  const hasThat = refinement('that', 'both');
   
   if (hasThat(these)) {
     expectType<"that" | "both">(these._type);
