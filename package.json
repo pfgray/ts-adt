@@ -1,6 +1,6 @@
 {
   "name": "ts-adt",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "author": "Paul Gray <pfbgray@gmail.com>",
   "description": "An Algebraic Data Type generator for Typescript",
   "main": "ADT.js",
