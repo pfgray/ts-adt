@@ -1,5 +1,5 @@
 import { pipe } from "fp-ts/lib/function";
-import { ADT, match, matchP, matchI, matchPI } from "../src/ADT";
+import { ADT, match, matchP, matchI, matchPI, refinement } from "../src/ADT";
 import { expectType } from "tsd";
 import test from "ava";
 
@@ -80,4 +80,16 @@ test("inference [matchPI]", (t) => {
   );
   expectType<number | "this" | "both">(result);
   t.is(result, 5);
+});
+
+test("inference [refinement]", (t) => {
+  const hasThat = refinement(['that', 'both']);
+  
+  if (hasThat(these)) {
+    expectType<"that" | "both">(these._type);
+  } else {
+    expectType<"this">(these._type);
+  }
+  
+  t.assert(hasThat(these));
 });
