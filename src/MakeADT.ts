@@ -160,7 +160,7 @@ export function makeMatchPI<D extends string>(
   F extends (rest: Exclude<ADT, {[K in D]: keyof M}>) => unknown
 >(
   matchObj: M,
-  otherwise: F
+  otherwise: F = (v) => v
 ) => MakePartialReturns<D, ADT, M> | ReturnType<F> {
   return (v) => (matchObj, otherwise) =>
     matchObj[v[d]] != null
