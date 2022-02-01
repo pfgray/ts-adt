@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc && ts-node ./scripts/build",
     "prepublish": "tsc",
-    "test": "ava",
+    "test": "c8 --reporter html ava ",
     "prerelease": "yarn build",
     "release": "ts-node scripts/release"
   },
@@ -29,5 +29,8 @@
     "require": [
       "ts-node/register"
     ]
+  },
+  "dependencies": {
+    "c8": "^7.11.0"
   }
 }
