@@ -43,10 +43,27 @@ type MakeReturns<
 /**
  * Helper type for extracting a member from an ADT
  */
-export type MakeADTMember<D extends string, ADT, Type extends string> = Extract<
-  ADT,
-  Record<D, Type>
->;
+export type MakeADTMember<
+  D extends string,
+  ADT extends Record<string, string>,
+  Type extends string
+> = ADT & Record<D, Type>;
+
+/**
+ * Helper type for getting all possible ADT members even from union-discriminant
+ *
+ *  | { discriminant: 'x' | 'y' }
+ *  | { discriminant: 'z' , z: string; }
+ *    ->
+ *  | { discriminant: 'x' }
+ *  | { discriminant : 'y' }
+ *  | { discriminant: 'z' , z: string; }
+ */
+type AllPossibleADTS<
+  D extends string,
+  ADT extends Record<string, string>,
+  X = ADT[D]
+> = X extends any ? ADT & Record<D, X> : never;
 
 /**
  * Pattern matching for a sum type defined with ADT
@@ -90,7 +107,9 @@ export function makeMatchP<D extends string>(
 ): <
   ADT extends Record<D, string>,
   M extends Partial<MakeMatchObj<D, ADT, unknown>>,
-  F extends (rest: Exclude<ADT, Record<D, keyof M>>) => unknown
+  F extends (
+    rest: Exclude<AllPossibleADTS<D, ADT>, Record<D, keyof M>>
+  ) => unknown
 >(
   matchObj: M,
   otherwise: F
@@ -99,9 +118,8 @@ export function makeMatchP<D extends string>(
     matchObj[v[d]] != null ? (matchObj[v[d]] as any)(v) : (otherwise as any)(v);
 }
 
-type UndefineableReturn<
-  T extends undefined | ((...args: any) => any)
-> = T extends (...args: any) => any ? ReturnType<T> : never;
+type UndefineableReturn<T extends undefined | ((...args: any) => any)> =
+  T extends (...args: any) => any ? ReturnType<T> : never;
 
 /**
  * Unions all the return types of matcher functions
@@ -157,7 +175,9 @@ export function makeMatchPI<D extends string>(
   M extends
     | MakeMatchObj<D, ADT, unknown>
     | Partial<MakeMatchObj<D, ADT, unknown>>,
-  F extends (rest: Exclude<ADT, {[K in D]: keyof M}>) => unknown
+  F extends (
+    rest: Exclude<AllPossibleADTS<D, ADT>, { [K in D]: keyof M }>
+  ) => unknown
 >(
   matchObj: M,
   otherwise: F
@@ -195,11 +215,11 @@ export const makeMatchers = <D extends string>(d: D) =>
  *
  * ```ts
  * import * as T from "fp-ts/These";
- * 
+ *
  * const refinement = makeRefinement("_tag");
  *
  * declare const foo: T.These<number, string>
- * 
+ *
  * // error if the tags are misspelled
  * if(refinement(['Left', 'Both'])(foo)) {
  *   console.log(foo.left)
@@ -210,14 +230,10 @@ export const makeMatchers = <D extends string>(d: D) =>
  * @param tags the tags to refine on
  * @param v the ADT to refine
  */
-export const makeRefinement = <D extends string>(
-  d: D
-) => <Type extends string>(
-  ...tags: readonly Type[]
-) => <ADT extends { [t in D]: string }>(
-  v: [Type] extends [ADT[D]] ? ADT : never
-): v is MakeADTMember<
-    D,
-    [Type] extends [ADT[D]] ? ADT : never, 
-    Type
-  > => tags.indexOf(v[d] as string as Type) > -1
+export const makeRefinement =
+  <D extends string>(d: D) =>
+  <Type extends string>(...tags: readonly Type[]) =>
+  <ADT extends { [t in D]: string }>(
+    v: [Type] extends [ADT[D]] ? ADT : never
+  ): v is MakeADTMember<D, [Type] extends [ADT[D]] ? ADT : never, Type> =>
+    tags.indexOf(v[d] as string as Type) > -1;
