@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "CommonJS",
     "sourceRoot": "./src",
     "sourceMap": true,
     "outDir": "lib",
-    "target": "es5",
+    "target": "es6",
     "lib": ["es6", "dom"],
     "declaration": true,
     "strict": true,
     "inlineSources": true
   },
-  "files": ["./src/ADT.ts"],
+  "files": ["./src/ADT.ts", "src/match.ts"],
 }

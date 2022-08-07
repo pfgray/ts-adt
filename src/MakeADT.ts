@@ -1,3 +1,8 @@
+import { makeMatchZ } from './match';
+import { isMatcher } from './Matcher';
+
+isMatcher(null)
+
 /**
  * A sum-type generator. Uses the keys of the passed type as string discriminators
  *
